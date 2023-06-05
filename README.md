@@ -15,7 +15,7 @@ This repository contains a utility to easily set up git sessions in shared worki
 
 1. Download the installation script:
 
-`wget https://github.com/lidiaparrilla/git-session-manager/blob/main/install.sh`
+`wget https://raw.githubusercontent.com/lidiaparrilla/git-session-manager/main/install.sh`
 
 2. Set execute permissions
 
