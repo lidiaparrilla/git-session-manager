@@ -15,8 +15,8 @@ read -p "Enter Git email for $USERNAME: " GIT_EMAIL
 read -p "Enter path to SSH key for $USERNAME: " SSHKEY
 
 # Save the details into config
-echo "USERNAME=${GIT_USERNAME}" > "$CONFIG_PATH"
-echo "EMAIL=${GIT_EMAIL}" >> "$CONFIG_PATH"
-echo "SSHKEY=${SSHKEY}" >> "$CONFIG_PATH"
+echo "USERNAME=\"${GIT_USERNAME}\"" > "$CONFIG_PATH"
+echo "EMAIL=\"${GIT_EMAIL}\"" >> "$CONFIG_PATH"
+echo "SSHKEY=\"${SSHKEY}\"" >> "$CONFIG_PATH"
 
 echo "User $USERNAME created successfully!"
