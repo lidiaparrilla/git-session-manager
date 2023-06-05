@@ -1,161 +1,54 @@
-# Repo-Template 
+# Git Session Manager
 
-<!-- Change the <owner>/<repository_name> pair in the URLs below to use the status badges -->
-![CI](https://github.com/idener/Repo-Template/actions/workflows/deployment-semver.yaml/badge.svg)
-[![GitHub Super-Linter](https://github.com/idener/Repo-Template/actions/workflows/code-analysis.yaml/badge.svg?branch=main)](https://github.com/idener/Repo-Template/actions/workflows/code-analysis.yaml)
+Tired of having to change the user, email and path to private SSH key manually when working with Git on a shared server? Hopeless with understanding and managing Git and SSH agents shenanigans? 
 
-This repository serves as a skeleton for the creation of new repositories where you need to create an image and optionally deploy it to the kubernetes cluster.  
+<b>This is your tool!</b>
 
-In this repository you will store:
-- The application source code
-- A `Dockerfile`
-- A `docker-compose.yaml` for testing locally the image (optional)
-- Application tests (also optional, but recommended)
-- The automated workflows described below
+This repository contains a utility to easily set up git sessions in shared working environments. And even more: You don't need to learn how to use a new tool, as this will be behaving as an internal Git command. Keep reading to understand how.
 
 # Table of Contents
 
-  * [Workflows](#ci-workflows)
-    * [Source Code Analysis](#code-analysis)
-      * [Super-Linter](#linter)
-      * [Semgrep](#semgrep)
-    * [Container Image Scanning](#container-image-scanning)
-    * [Issue branch generation](#issue-branch-generation)
-    * [Deployment](#deployment)
-      * [Image Tagging](#image-tagging)
-  * [Template Usage](#usage-of-the-template)
-    * [Kubernetes Deployment](#kubernetes-deployment)
+  * [Installation](#installation)
+  * [Usage](#usage)
 
+# Installation
 
-# Workflows
+1. Download the installation script:
 
-A workflow is a configurable automated process that will run one or more jobs. Workflows are defined by a YAML file (stored in the `.github/workflows` directory) and will run when triggered by an event in your repository or some of them can be triggered manually. Currently, there are 3 automated process operating on different stages of the sofware development cycle. These are:
+`wget https://github.com/idener/git-session-manager/blob/main/install.sh`
 
-1. Source Code Analysis
-2. Container Image Scanning
-3. Deployment trough Releases and Semantic Versioning
+2. Set execute permissions
 
-## Source Code Analysis
-Source code analysis is performed by Static Analys Tools (SCA), usually as part of a code review during pull requests. This type of analysis addresses weaknesses in source code that might lead to vulnerabilities and also enforces coding style guidelines.
+`sudo chmod +x install.sh`
 
-The analysis of the code is made on pull request to the main branch and will be remade every time a commit is made for the pull requests, helping us to introduce better, error-free code to the main branch. Only the modified files will be scanned. It is advisable to remove all errors before resolving the pull request.
-You can also analyze the code on-demand whenever you want by running the Code Analysys action. This will run the analysis on all the codebase.
+3. Execute as sudo:
 
-### Super Linter
+`sudo ./install.sh`
 
-The code analysis workflow is running a [Super-Linter](https://github.com/github/super-linter) to help you validate your source code. 
+4. Clean installation file:
 
-The end goal of this tool is to:
-- Help establish coding best practices across multiple languages
-- Build guidelines for code layout and format
-- Automate the process to help streamline code reviews
+`rm install.sh`
 
-If some language being linted is annoying you or giving false errors, you can disable it in the `.github/workflows/linter.yaml` file, passing the `VALIDATE_<LANGUAGE>: false` input to the Super-Linter action.
+# Usage
 
-The files in this [folder](https://github.com/github/super-linter/tree/main/TEMPLATES) are the template rules for the linters that will run against your codebase.
+The installation will provide 2 new commands that are used as internal git commands.
 
-### Semgrep
+## Session creation
 
-[Semgrep](https://semgrep.dev/) is a fast, open-source, static analysis tool for finding bugs and enforcing code standards at CI time. Semgrep supports 20+ languages and it comes with [2,000+ community-driven rules](https://semgrep.dev/explore) covering security, correctness, and performance bugs.  
+Create a new session, with its corresponding user name, email and path to SSH private key.
 
-## Container Image Scanning
+`git session-create <username>`
 
-There is a workflow that can be used to help you add some additional checks to help to secure your Docker Images. This would help you attain some confidence in your docker image before pushing them to your container registry or a deployment.
+The utility will then ask for the user name, e-mail and path to the SSH RSA private key. To create this private key, you can use ssh-keygen. Read more [here](https://www.ssh.com/academy/ssh/keygen).
 
-It internally uses `Trivy` and `Dockle` for running certain kinds of scans on these images. 
-- [`Trivy`](https://github.com/aquasecurity/trivy) helps you find the common vulnerabilities within your docker images. 
-- [`Dockle`](https://github.com/goodwithtech/dockle) is a container linter, which helps you identify if you haven't followed 
-  - Certain best practices while building the image 
-  - [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/) to secure your docker image
-  
-This workflow will be run during pull requests, but you can also trigger it manually. It will build and push an image with a `pre-release` tag and then analyze it. It is recommended to run this workflow before making any release of the code.
+After that, you will see that a new file <username>.config has been created under `~/.ssh/sessions-config/` folder.
 
-## Issue branch generation
+## Session start
 
-A branch will be automatically generated whenever a new issue is assigned to somebody. That branch will have the following name:
-```text
-<label>/<issue_number>-<issue_title>
+Activate an existing Git session, that will last for the duration of the current window session.
 
-For example...
-feature/25-new-functionality-x
-```
+`git session-start <username>`
 
+If the corresponding session exists, it will be enabled. From that moment on, any interaction with the repository will be made in the name of the selected user and using that SSH key for interaction with the remote repository (GitLab, GitHub, etc.).
 
-
-
-# Deployment
-
-```text
-┌──────┐   ┌───────┐   ┌────────┐   ┌──────────┐
-│ Test │   │ Build │   │Push to │   │Update K8s│
-│      ├──►│ Image ├──►│Registry├──►│manifests │
-└──────┘   └───────┘   └────────┘   └──────────┘
-```
-1. Run tests if defined
-2. Build the image (this will be done using Kaniko)
-3. Push to image registry
-4. Update the K8 manifests of the deployment repository with the new image version tag (optional)
-
-## Image Tagging
-You can choose between 2 methods for tagging your image, use the commit SHA or use git tags.
-
-**NOTE: Independently of what method you use, images will be pushed with the `latest` tag in addition to the version tag.**
-
-### Using the commit SHA
-Every commit has a SHA number associated, we can use the first 6 digits and use it as the tag for the image. This workflow is implemented in the `deployment-sha.yaml` file.
-
-### Using git tags and releases (Recommended)
-
-This is the best practice as it inherits all the benefits of the [Semantic Versioning](https://semver.org/) system and the automatic generation of release notes. The developer workflow would be as follow:
-
-0. An Issue is created for the development of a new feature, the fix of a bug... This issue is labeled accordingly and assigned to someone.
-1. A new branch from `main` is automatically generated based on the previous issue (you can always create it manually, without any issue). The name of the branch will be prefixed with one of the following:
-  - `feature/...`
-  - `enhacement/...`
-  - `performance/...`
-  - `fix/...`
-  - `bug/...`
-  - `patch/...`
-  - `docs/...`
-  - `chore/...`
-2. Write code on that branch.
-3. When you are done, open a pull request to the `main` branch. This pull request will be labeled automatically according to the type of the branch (see step 1). This label will be important to determine the next version of the release (based on the Semantic Versioning schema), as we will se later. You can always label it manually if you forgot about the branching name requirement.
-4. Review the source code analysis and the container image scanning workflows triggered by this pull request (the results will be showed on the pull request page and also in the actions page).
-5. Try to eliminate bugs introduced in code following the previous analysis guidelines.
-6. When you are ready, resolve the pull request. This will create a draft release (or update it if there is already one), categorizing the changes made according to the branch name as follows:
-    - Features (change in minor version number):
-      - `feature`
-      - `enhacement`
-      - `performance`
-    - Bug fixes (change in patch version number):
-      - `fix`
-      - `bug`
-      - `patch`
-    - Maintenance (no changes in version number):
-      - `docs`
-      - `chore`
-7. The draft release will be populated automatically with the successive pull requests and the version will be increased accordingly. When you are ready, publish the release. This will trigger the deployment workflow.
-
-**Important notes:**
-- An increase in the major version number will be done only when a pull request is labeled (manually), as `major` or `stable`. It is up to the developer to choose when to make such a change.
-- The name appearing in the Release Notes will be the name of the pull request, so try to make it as concise and descriptive as possible about the changes introduced in that merge.
-- You can always make a hotfix commit to the main branch without doing the new branch + pull-request steps. This will increase the patch version number of the next release. The downside is that the change will not be reflected in the release notes, so consider to add the change to the release notes manually if the change is somewhat important.
-
-# Template Usage
-
-1. Click on the 'Use this template' button on the top right corner and create a repository with the name of the image that will be created.
-2. In the newly generated repository, go to Settings -> Secrets -> Actions, and create 2 secrets:
-    - `REGISTRY_USERNAME`: Username for authentication with the container registry to be used.
-    - `REGISTRY_PASSWORD`: Password or token used to authenticate with the container registry.
-3. Then, in the CI workflow files, modify the env variables:
-    - `IMAGE_NAME`: Name of the image
-    - `REGISTRY_URL`: URL of the container registry
-4. Code!
-
-### Kubernetes Deployment
-If you want to deploy your application in the kubernetes cluster you will need to:
-- Set to true the `DEPLOY_ENABLE` environment variable.
-- Modify `DEPLOY_REPO` with the name of the repository storing the k8 configuration files (i.e. idener/CD-Project).
-- Create a SSH key pair. Put the public one in the deployment repository (Settings -> Deploy keys) and put the private key in this repository as a secret with the name `REPO_SSH`.
-
-Before doing all of this you need make and configure a deployment repository for the project with the kubernetes manifests files (this will be done by Carlos Leyva or Antonio Gomez)
+The session can be exited at any moment by doing `exit` or just leaving the current SSH session. This will resore Git settings to default user and clean the SSH key reference to avoid accidental commit in other's name in a future login.
