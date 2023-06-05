@@ -1,0 +1,24 @@
+---
+name: Draft Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  update-release:
+    name: Update release draft
+    runs-on: self-hosted
+    permissions:
+      contents: write      # required to create a github release
+      pull-requests: write # required for autolabeler
+    
+    steps:
+      # Drafts your next Release notes as Pull Requests are merged into "main"
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          

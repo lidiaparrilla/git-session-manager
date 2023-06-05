@@ -1,0 +1,50 @@
+---
+name: Code Analysis
+
+on:
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  linter:
+    name: Lint code
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Run super-linter
+        uses: github/super-linter@v4.9.5
+        if: github.event_name == 'pull_request'
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_GITHUB_ACTIONS: false
+
+      - name: Run super-linter
+        uses: github/super-linter@v4.9.5
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_GITHUB_ACTIONS: false
+
+  semgrep:
+    name: Scan code
+    runs-on: self-hosted
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Semgrep scanning
+        run: semgrep ci
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}

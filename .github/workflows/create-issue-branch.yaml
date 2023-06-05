@@ -1,0 +1,15 @@
+---
+name: Create Issue Branch
+
+on:
+  issues:
+    types: [ assigned ]
+
+jobs:
+  create_issue_branch_job:
+    runs-on: self-hosted
+    steps:
+      - name: Create Issue Branch
+        uses: robvanderleek/create-issue-branch@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

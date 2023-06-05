@@ -1,0 +1,46 @@
+---
+name: Container Image Scan
+
+on:
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
+  
+env:
+  IMAGE_NAME: test_image
+  REGISTRY_URL: registry.idener.es
+  
+jobs:
+
+  build-and-push:
+    name: Build & push pre-release image
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      - name: Kaniko builder
+        uses: aevea/action-kaniko@v0.9.0
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          image: ${{ env.IMAGE_NAME }}
+          tag: pre-release
+
+  container-scan:
+    name: Pre-release image check
+    runs-on: self-hosted
+    needs: build-and-push
+    
+    steps:
+      - name: Container image scan
+        uses: Azure/container-scan@v0.1
+        with:
+          image-name: ${{ env.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:pre-release
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          # Minimum severities of vulnerabilities to be displayed (UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL)
+          # severity-threshold: HIGH
+
