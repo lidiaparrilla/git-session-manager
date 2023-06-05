@@ -15,7 +15,7 @@ This repository contains a utility to easily set up git sessions in shared worki
 
 1. Download the installation script:
 
-`wget https://github.com/idener/git-session-manager/blob/main/install.sh`
+`wget https://github.com/lidiaparrilla/git-session-manager/blob/main/install.sh`
 
 2. Set execute permissions
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. Download script git-session-start from a github repository
-wget -O git-session-start <https://github.com/idener/git-session-manager/blob/main/src/git-session-start.sh>
+wget -O git-session-start <https://github.com/lidiaparrilla/git-session-manager/blob/main/src/git-session-start.sh>
 
 # 2. Change permissions
 chmod +x git-session-start.sh
@@ -16,7 +16,7 @@ git config --global alias.session '!git-session-start'
 mkdir -p ~/.ssh/session-configs
 
 # 6. Download script git-session-create.sh from a github repository
-wget -O git-session-create.sh <https://github.com/idener/git-session-manager/blob/main/src/git-session-create.sh>
+wget -O git-session-create.sh <https://github.com/lidiaparrilla/git-session-manager/blob/main/src/git-session-create.sh>
 
 # 7. Change permissions
 chmod +x git-session-create.sh
