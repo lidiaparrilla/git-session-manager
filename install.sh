@@ -13,7 +13,7 @@ sudo mv git-session-start.sh /usr/local/bin/git-session-start
 git config --global alias.session '!git-session-start'
 
 # 5. Create settings folder
-sudo mkdir -p ~/.ssh/session-configs
+mkdir -p ~/.ssh/session-configs
 
 # 6. Download script git-session-create.sh from a github repository
 wget https://raw.githubusercontent.com/lidiaparrilla/git-session-manager/main/src/git-session-create.sh

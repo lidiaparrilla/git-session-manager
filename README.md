@@ -29,6 +29,9 @@ This repository contains a utility to easily set up git sessions in shared worki
 
 `rm install.sh`
 
+To uninstall, follow the same steps, but with the next file:
+`wget https://raw.githubusercontent.com/lidiaparrilla/git-session-manager/main/uninstall.sh`
+
 # Usage
 
 The installation will provide 2 new commands that are used as internal git commands.
