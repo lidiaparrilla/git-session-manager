@@ -10,15 +10,6 @@ fi
 USERNAME=$1
 CONFIG_PATH="$HOME/.ssh/session-configs/${USERNAME}.conf"
 
-# Check if configuration file exists
-if [ ! -f "$CONFIG_PATH" ]; then
-    echo "No configuration found for user ${USERNAME}."
-    exit 1
-fi
-
-# Source the configuration
-source "$CONFIG_PATH"
-
 # Backup current git config
 GIT_USERNAME=$(git config --global user.name)
 GIT_EMAIL=$(git config --global user.email)
@@ -33,6 +24,15 @@ if [ "$GIT_USERNAME" != "" ] && [ "$GIT_USERNAME" != "$USERNAME" ]; then
     echo "    git config --global --unset core.sshCommand"
     exit 1
 fi
+
+# Check if configuration file exists
+if [ ! -f "$CONFIG_PATH" ]; then
+    echo "No configuration found for user ${USERNAME}. Creating a new one"
+    sudo touch $CONFIG_PATH
+fi
+
+# Source the configuration
+source "$CONFIG_PATH"
 
 # Set the new git config
 git config --global user.name "$USERNAME"
