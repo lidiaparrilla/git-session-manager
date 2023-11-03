@@ -21,9 +21,9 @@ This repository contains a utility to easily set up git sessions in shared worki
 
 `sudo chmod +x install.sh`
 
-3. Execute as sudo:
+3. Execute (without sudo):
 
-`sudo ./install.sh`
+`./install.sh`
 
 4. Clean installation file:
 
